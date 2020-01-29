@@ -1,0 +1,6 @@
+install.packages("gmapsdistance")
+
+library(gmapsdistance)
+
+set.api.key("AIzaSyCZ3rV6mM-Iw9BZls_GI8oUzG7eqAPBR6I")
+

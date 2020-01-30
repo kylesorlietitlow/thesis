@@ -1,3 +1,3 @@
 # Example Site
 
-This is a sample ReadMe file for the thesis GitHub repo.
+This repo contains data, scripts, and writing based on my master's thesis.

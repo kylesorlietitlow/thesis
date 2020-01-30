@@ -1,0 +1,285 @@
+---
+title: Transit-facilitated accessibility of the asentamientos of Greater Buenos Aires,
+  Argentina
+author: "Kyle Sorlie Titlow"
+date: "6/3/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# De Alguna Manera Llegas
+## Transit-access to 
+
+```{r setup, include=FALSE}
+require(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+opts_knit$set(root.dir = "~/Documents/Thesis/Data")
+
+#Input libraries
+library(rgdal)
+library(sf)
+library(mapview)
+
+#Set paths to the four geodatabases
+gdb_adm0 <- "Data_ADM0_Argentina.gdb/"
+gdb_adm1 <- "Data_ADM1_BuenosAiresProvince.gdb/"
+gdb_adm2 <- "Data_ADM2_AMBA.gdb/"
+gdb_adm3 <- "Data_ADM3_3CaseStudies.gdb/"
+gdb_thesis <- "Thesis.gdb/"
+output_dsn = "GEOJSON"
+
+```
+
+### 1. Study Area
+#### Figure 1.1 -- Republic of Argentina
+Map of the Republic of Argentina highlighting the Province of Buenos Aires and the Autonomous City of Buenos Aires
+```{r echo=FALSE}
+#adm1 <- st_read(dsn=gdb_adm1, layer = "Administrative_Provincias")
+#adm1_caba <- st_read(dsn=gdb_adm2, layer = "CABA")
+#adm1_prov <- st_read(dsn=gdb_adm1, layer = "Administrative_ProvinceBoundary")
+```
+
+#### Figure 1.2: Buenos Aires Province
+Showing the relative location of the Autonomous City of Buenos Aires (CABA) and the surrounding conurbation
+```{r}
+# Import province-wide layers
+#st_read(dsn=gdb_adm2, layer = "Departments_GovernmentSeats")
+#st_read(dsn=gdb_adm1, layer = "Departments")
+```
+
+#### Figure 2.3: Agglomerated Buenos Aires
+Map of the departments belonging to Agglomerated Buenos Aires, which encircle CABA 
+```{r}
+##AGBA with all 30 departments =============================================================================
+#adm1_amba30 <- st_read(dsn=gdb_adm2, layer = "AMBACABA_Separate") #2n, 4v
+#adm2_amba30 <- st_read(dsn=gdb_adm2, layer = "Departments_AMBACABA_CABA") #47n, 8v
+adm2_amba30 <- st_read(dsn=gdb_adm2, layer = "Departments_AGBA30_INDEC") #31n, 28v
+
+##AGBA with 24 departments ================================================================================
+#adm1_caba_cbd <- st_read(dsn=gdb_adm2, layer = "AMBACABA_CBD") #1n, 5v
+```
+
+#### Figure 2.4: Mancha Urbana
+The full extent of Buenos Aires’ agglomerated area, with departmental boundaries superimposed
+```{r}
+#manchaurbana <- st_read(dsn=gdb_adm2, layer = "UrbanizedArea")
+
+#plot(st_geometry(manchaurbana), axes=T, col="orange")
+#plot(st_geometry(adm2_prov), add=T, col=NA, border="light grey")
+#plot(st_geometry(adm2_amba), add=T, col=NA, border="dark grey")
+#plot(st_geometry(adm0), add=T, col=NA, border="black")
+```
+
+#### Figure 2.5: Departments of AGBA
+Departments of Agglomerated Buenos Aires (AGBA), based on degree of urbanization and history as part of Greater Buenos Aires (GABA)
+```{r}
+#plot(st_geometry(adm2_amba), axes=T, col="light grey", border="dark grey")
+```
+
+#### Figure 2.6: Population densities
+Population density, measured in people per square kilometer, across the departments of Agglomerated Buenos Aires (AGBA)
+```{r}
+#radio_amba30 <- st_read(dsn=gdb_adm2, layer = "Radio_AGBA30") #13508n, 198v (Excl. SL-Is.)
+radio_amba <- st_read(dsn=gdb_adm2, layer = "Radio_AMBA24_INDEC") #13521n, 175v (Incl. SL-Is.) ***
+
+#radio_amba30_indec <- st_read(dsn=gdb_thesis, layer = "Radio_AMBACABA_INDEC") #14433n, 337v (Incl. LP/SL-I/FV)
+radio_amba24_indec <- st_read(dsn=gdb_thesis, layer = "Radio_AMBA24_INDEC") #13521n, 172v (Incl. SL-I) ***
+
+#plot(radio_amba["TOT_POB"], border="NA", key.pos=4)
+```
+
+#### Figure 2.7: Socioeconomic indicators
+Illiteracy rates in Agglomerated Buenos Aires (AGBA), 2010
+University-level education rates in agglomerated Buenos Aires (AGBA), 2010
+```{r}
+plot(layer["PCT_POB_ANALFTABETISMO"], border="NA", key.pos=4)
+plot(layer["PCT_POB_NIVELED_UNIV"], border="NA", key.pos=4)
+```
+
+### Chapter 3: Transportation
+#### Figure 3.1: Transportation infrastructure
+Transportation system of Agglomerated Buenos Aires (AGBA)
+```{r}
+#motorways <- st_read(dsn=gdb_adm2, layer = "RedVial")
+
+#railways <- st_read(dsn=gdb_adm2, layer = "Railroad_AGBA30")
+#rail_stations <- st_read(dsn=gdb_adm2, layer = "Railroad_Stations_AGBA30")
+
+#subte <- st_read(dsn=gdb_adm2, layer = "Subway_Route")
+#subte_stations <- st_read(dsn=gdb_adm2, layer = "Subway_Stations")
+
+#bus_routes <- st_read(dsn=gdb_adm2, layer = "Bus_AGBA30")
+```
+
+#### Figure 3.3: Population density and transportation
+Population density (2010) in Agglomerated Buenos Aires (AGBA), overlaid with regional road and railway networks (2018)
+```{r}
+plot(layer["POB_DENS"], border="NA", key.pos=4)
+```
+
+### Chapter 4: Asentamientos
+#### Figure 4.2: TECHO asentamientos
+Distribution of asentamientos in Agglomerated Buenos Aires (AGBA) (2016)
+```{r}
+## ADM2: Load asentamiento layers -------------------------------------------------------------
+#techo_amba24 <- st_read(dsn=gdb_adm2, layer = "TECHO_AGBA30")                          #1009n, 50v (all types, amba24)
+
+#techo_asent_amba <- st_read(dsn=gdb_adm2, layer = "TECHO_AGBA30_Asentamientos")        #550n, 82v (asent only, amba24)
+#asent_amba24_pnt <- st_read(dsn=gdb_thesis, layer = "AMBA24_Asentamientos")            #687n, 126v (asent, amba30, pts)
+
+#techo_villa_amba <- st_read(dsn=gdb_adm2, layer = "TECHO_AMBAINDEC_Villa")             #252n, 50v (villa only, amba30)
+
+#urb_cerradas <- st_read(dsn=gdb_adm2, layer = "UrbanizacionesCerradas_AMBAINDEC")      #100n, 32v (urbcn only, amba30)
+
+#techo_asent_n3 <- st_read(dsn=gdb_adm3, layer = "TECHO_AMBAINDEC_n3")                           #139n, 126v (asent only, n3)
+```
+
+#### Figure 4.3: Asentamientos and transportation
+The asentamientos of Agglomerated Buenos Aires (AGBA), overlaid with major regional transportation infrastructure (2018)
+
+### Chapter 6: Methodology
+#### Figure 6.1: Census geography
+Map of all census geographic units in Agglomerated Buenos Aires (AGBA), including provinces, departments, fractions, and radios (2010)
+```{r}
+#layer <- st_read(dsn=gdb_adm2, layer = "Radio_AGBA30")
+```
+
+#### Figure 6.3: Census geography and asentamientos
+Map of census radios in Agglomerated Buenos Aires, colored based percent overlap with an asentamiento (2013)
+```{r}
+#layer <- st_read(dsn=gdb_adm2, layer = "Radio_AGBA30")
+```
+
+
+#### Figure 6.4: Asentamientos, by department
+Departments of Agglomerated Buenos Aires (AGBA), by number of families estimated to be living in asentamientos (2013)
+```{r}
+#adm2_amba30_ext <- st_read(dsn=gdb_adm3, layer = "Departments_AMBA30")        #31n, 28v
+#adm2_amba30_ext <- st_transform(adm2_amba30_ext, 4326)
+#adm2_amba30 <- st_read(dsn=gdb_adm3, layer = "Departments_AMBA24")            #31n, 24v
+#adm2_amba30 <- st_transform(adm2_amba30, 4326)
+
+#plot(st_geometry(adm2_amba30_ext), axes=T, col="grey")
+#plot(st_geometry(adm2_amba30), add=T, col="light blue")
+```
+
+
+#### Figure 6.5: Case studies
+Departments of Agglomerated Buenos Aires (AGBA), highlighting the three selected as case studies: La Matanza, Pilar, and Quilmes
+```{r}
+#adm2_n3 <- st_read(dsn=gdb_adm3, layer = "Departments_AMBAINDEC_n3")        #n3, v5
+#adm2_n3 <- st_transform(adm2_n3, 4326)
+
+#radio_amba <- st_read(dsn=gdb_adm3, layer = "Radio_AMBA24_INDEC_Pct_n3")   #2138n, 171v
+#radio_amba <- st_read(dsn=gdb_adm3, layer = "Radio_AMBAINDEC_n3")          #2138n, 175v
+```
+
+#### Figure 6.6: Quilmes
+Locations of asentamientos and transportation infrastructure, Quilmes department
+Sampled census radios (by degree of overlap with asentamiento), Quilmes department
+```{r}
+#asent_qlm <- st_read(dsn=gdb_thesis, layer = "Quilmes_Asentamientos") #43n, 82v (poly)
+#orig_qlm_trvtime <- st_read(dsn=gdb_thesis, layer = "Quilmes_Origins_Radios_12March") #92n x 35v (pts)
+```
+
+#### Figure 6.7: La Matanza
+Locations of asentamientos and transportation infrastructure, La Matanza department
+Sampled census radios (by degree of overlap with asentamiento), La Matanza department
+```{r}
+#asent_lmz <- st_read(dsn=gdb_thesis, layer = "LaMatanza_Asentamientos") #69n, 82v (poly)
+#orig_lmz_trvtime <- st_read(dsn=gdb_thesis, layer = "LaMatanza_Origins_Radios_12March") #120n, 33v (point)
+```
+
+
+#### Figure 6.8: Pilar Asentamientos, Transportation, and Sampled Radios
+Locations of asentamientos and transportation infrastructure, Pilar department
+Sampled census radios (by degree of overlap with asentamiento, Pilar department
+```{r}
+#asent_plr <- st_read(dsn=gdb_thesis, layer = "Pilar_Asentamientos") #30n, 82v
+#orig_plr_trvtime <- st_read(dsn=gdb_thesis, layer = "Pilar_Origins_Radios_12March") #72n, 33v (point)
+```
+
+
+#### Figure 6.9: Departments with population estimates
+Departments of Agglomerated Buenos Aires (AGBA), overlaid with SEDAC population estimates (2015)
+```{r}
+```
+
+#### Figure 6.10: Weighted Population Centers of Sampled Census Radios
+Weighted mean population centers of sampled census radios, by overlap with an asentamiento (2013) and from all three case studies
+```{r}
+## ADM3: Load origin layers: ------------------------------------------------------------------
+#st_read(dsn=gdb_adm3, layer = "Study3_Origins_Radios_MeanCenter_All")          #284n, 28v
+#st_read(dsn=gdb_adm3, layer = "Origins_Radios_All_PopMeanCenter")              #284n, 21v
+#st_read(dsn=gdb_adm3, layer = "Origins_Radios_PopMeanCenter_INDEC")            #284n, 174v
+#st_read(dsn=gdb_adm3, layer = "Study3_Origins_Radios_MeanCenter_withINDEC")    #284n, 213v
+#st_read(dsn=gdb_adm3, layer = "Study3_Origins_MAJ")                            #52n, 209v
+#st_read(dsn=gdb_adm3, layer = "Study3_Origins_MIN")                            #90, 209v
+#st_read(dsn=gdb_adm3, layer = "Study3_Origins_NONE")                           #142n, 209v
+#st_read(dsn=gdb_adm3, layer = "Study3_Origins_ANY")                            #142n, 209v
+#st_read(dsn=gdb_adm3, layer = "thesis_traveltime_3cases_indec_scaled")         #284n, 207v
+#st_read(dsn=gdb_thesis, layer = "Study3_Origins_Radios_MeanCenter_withINDEC")  #284n, 179v
+#st_read(dsn=gdb_thesis, layer = "AGBA30_Origins")                              #284n, 211v
+#st_read(dsn=gdb_thesis, layer = "Study3_Origins_Radios_MeanCenter_All")        #284, 31v
+```
+
+#### Figure 6.11: Central Business Districts
+Central business districts of Agglomerated Buenos Aires (AGBA), featuring those included as “destinations” for the corresponding API requests
+```{r}
+#st_read(dsn=gdb_adm3, layer = "CBD_BuenosAires")                                       #1n, 5v
+#st_read(dsn=gdb_adm3, layer = "CBD_Proximate")                                         #21n, 29v
+#st_read(dsn=gdb_adm3, layer = "Departments_AMBAINDEC_BorderSample")                    #23n, 8v (error)
+
+#st_read(dsn=gdb_adm3, layer = "CBD_Pilar")                                             #1n, #7v
+#st_read(dsn=gdb_adm3, layer = "CBD_Quilmes")                                           #1n, #7v
+#st_read(dsn=gdb_adm3, layer = "CBD_LaMatanza")                                         #1n, #7v
+```
+
+#### Figure 6.12: Railroad Stations
+Railroad stations of Agglomerated Buenos Aires (AGBA), featuring those included as “destinations” for the corresponding API requests
+
+#### Figure 6.13: Public Schools
+Public kindergartens (left), primary schools (center), and secondary schools (right) of Agglomerated Buenos Aires (AGBA), featuring those included as “destinations” for the corresponding API requests
+```{r}
+```
+
+#### Figure 6.14: Public Healthcare
+UPA’s (left), public hospitals (center), and public diagonstic/treatment centers (right) of Agglomerated Buenos Aires (AGBA), featuring those included as “destinations” for the corresponding API requests
+```{r}
+```
+
+
+### Map Appendix
+#### Figure A.1
+Travel times on public transportation (at 7:00am on a Wednesday) from all sampled census radios to the central business district of the Autonomous City of Buenos Aires (CABA)
+
+#### Figure A.2
+Travel times on public transportation (at 7:00am on a Wednesday) from all sampled census radios to the central business districts of their respective departments
+
+#### Figure A.3
+Travel times on public transportation (at 7:00am on a Wednesday) from all sampled census radios to the nearest central business district of any department
+
+#### Figure A.4
+Travel times on public transportation (at 7:00am on a Wednesday) from all sampled census radios to the nearest railway station
+
+#### Figure A.5
+Travel times on public transportation (at 10:30am on a Wednesday) from all sampled census radios to the nearest urgent care center (UPA)
+
+#### Figure A.6
+Travel times on public transportation (at 10:30am on a Wednesday) from all sampled census radios to the nearest public hospital
+
+#### Figure A.7
+Travel times on public transportation (at 10:30am on a Wednesday) from all sampled census radios to the nearest public diagnostic/treatment center
+
+#### Figure A.8
+Travel times on public transportation (at 12:00pm on a Wednesday) from all sampled census radios to the nearest public kindergarten
+
+#### Figure A.9
+Travel times on public transportation (at 12:00pm on a Wednesday) from all sampled census radios to the nearest public primary school
+
+#### Figure A.10
+Travel times on public transportation (at 12:00pm on a Wednesday) from all sampled census radios to the nearest public secondary school
+
+
+
